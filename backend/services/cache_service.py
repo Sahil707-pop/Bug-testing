@@ -4,7 +4,8 @@ class CacheService:
     Used across multiple workers and requests.
     """
 
-    _cache = {}  # Class-level shared mutable state (BUG)
+    def __init__(self):
+        self._cache = {}
 
     def set(self, key: str, value):
         self._cache[key] = value
