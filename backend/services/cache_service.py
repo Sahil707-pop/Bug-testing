@@ -1,3 +1,6 @@
+import threading
+
+
 class CacheService:
     """
     In-memory cache service.
@@ -6,21 +9,27 @@ class CacheService:
 
     def __init__(self):
         self._cache = {}
+        self._lock = threading.Lock()
 
-    def set(self, key: str, value):
-        self._cache[key] = value
+    def set(self, key: str, value: object) -> None:
+        with self._lock:
+            self._cache[key] = value
 
-    def get(self, key: str):
-        return self._cache.get(key)
+    def get(self, key: str) -> object:
+        with self._lock:
+            return self._cache.get(key)
 
-    def delete(self, key: str):
-        if key in self._cache:
-            del self._cache[key]
+    def delete(self, key: str) -> None:
+        with self._lock:
+            if key in self._cache:
+                del self._cache[key]
 
-    def clear(self):
-        self._cache.clear()
+    def clear(self) -> None:
+        with self._lock:
+            self._cache.clear()
 
-    def get_or_set(self, key: str, default_value):
-        if key not in self._cache:
-            self._cache[key] = default_value
-        return self._cache[key]
+    def get_or_set(self, key: str, default_value: object) -> object:
+        with self._lock:
+            if key not in self._cache:
+                self._cache[key] = default_value
+            return self._cache[key]
