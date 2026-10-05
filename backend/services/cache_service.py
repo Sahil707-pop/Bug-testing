@@ -1,23 +1,29 @@
 import threading
+from typing import Optional
 
 
 class CacheService:
     """
     In-memory cache service.
-    Used across multiple workers and requests.
+    Thread-safe using RLock. Distinguishes missing keys from None values.
     """
+
+    _MISSING = object()
 
     def __init__(self):
         self._cache = {}
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def set(self, key: str, value: object) -> None:
         with self._lock:
             self._cache[key] = value
 
-    def get(self, key: str) -> object:
+    def get(self, key: str) -> Optional[object]:
         with self._lock:
-            return self._cache.get(key)
+            cached = self._cache.get(key, self._MISSING)
+            if cached is self._MISSING:
+                return None
+            return cached
 
     def delete(self, key: str) -> None:
         with self._lock:
@@ -33,5 +39,3 @@ class CacheService:
             if key not in self._cache:
                 self._cache[key] = default_value
             return self._cache[key]
-
-# [ARE] Auto-applied baseline stabilization patch
