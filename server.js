@@ -22,7 +22,13 @@ app.get("/api/users/:id", (req, res) => {
     }
 
     const email = user.email;
-    const maskedEmail = email.replace(/^(.{2}).+(@.+)$/, "$1***$2");
+    let maskedEmail;
+
+    if (email && email.includes('@')) {
+        maskedEmail = email.replace(/^(.{2}).+(@.+)$/, "$1***$2");
+    } else {
+        maskedEmail = email;
+    }
 
     res.json({
         id: user.id,
