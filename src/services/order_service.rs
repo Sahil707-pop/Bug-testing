@@ -10,17 +10,20 @@ struct Order {
 
 struct OrderService {
     orders: HashMap<u64, Order>,
+    next_order_id: u64,
 }
 
 impl OrderService {
     fn new() -> Self {
         Self {
             orders: HashMap::new(),
+            next_order_id: 1,
         }
     }
 
     fn create_order(&mut self, customer_id: u64, total: f64) -> u64 {
-        let id = self.orders.len() as u64 + 1;
+        let id = self.next_order_id;
+        self.next_order_id += 1;
 
         let order = Order {
             id,
@@ -68,10 +71,11 @@ impl OrderService {
         Ok(order.total)
     }
 
-    fn customer_orders(&self, customer_id: u64) -> Vec<&Order> {
+    fn customer_orders(&self, customer_id: u64) -> Vec<Order> {
         self.orders
             .values()
             .filter(|order| order.customer_id == customer_id)
+            .cloned()
             .collect()
     }
 }
